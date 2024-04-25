@@ -1,6 +1,6 @@
 {
-  "id": "90ba30ff-e695-4e23-87bb-4abd25dbdfd5",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "1599c9aa-48d9-4aa7-a4e8-3af036941352",
+  "prevId": "90ba30ff-e695-4e23-87bb-4abd25dbdfd5",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -214,6 +214,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": "'user'"
+        },
+        "subscription": {
+          "name": "subscription",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         }
       },
       "indexes": {},
