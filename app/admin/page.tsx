@@ -1,7 +1,6 @@
 import { auth } from '@/auth';
 import { Button } from '@/components/ui/button';
-import { getSession } from '@/lib/get-session';
-import { activeSubscription } from '@/lib/user';
+
 import next from 'next';
 
 import Link from 'next/link';
@@ -14,8 +13,6 @@ const DashboardPage = async () => {
   if (session?.user.role === 'user') {
     redirect('/dashboard');
   }
-
-  const handleActiveSubscription = () => {};
 
   return (
     <div className="flex flex-col gap-4 p-4">

@@ -32,8 +32,10 @@ CREATE TABLE IF NOT EXISTS "user" (
 	"name" text,
 	"email" text NOT NULL,
 	"emailVerified" timestamp,
+	"password" text,
 	"image" text,
 	"role" "role" DEFAULT 'user',
+	"subscription" boolean DEFAULT false,
 	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint

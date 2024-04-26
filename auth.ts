@@ -2,12 +2,72 @@ import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import NextAuth from 'next-auth';
 import GitHub from 'next-auth/providers/github';
 import Google from 'next-auth/providers/google';
+import Credentials from 'next-auth/providers/credentials';
+
 import { db } from './db';
-import { getUserById } from './lib/user';
+import { getUserByEmail, getUserById } from './lib/user';
+
+import bcrypt from 'bcryptjs';
+import type { Provider } from 'next-auth/providers';
+
+const providers: Provider[] = [
+  Credentials({
+    credentials: {
+      email: { label: 'E-mail', type: 'email' },
+      password: { label: 'Password', type: 'password' },
+    },
+    authorize: async (c) => {
+      let user = null;
+
+      user = await getUserByEmail(c.email as string);
+
+      if (!user) {
+        console.log('Usuário não encontrado');
+        return null;
+      }
+
+      // Compare password
+      const isPasswordCorrect = await bcrypt.compare(
+        c.password as string,
+        user.password as string,
+      );
+
+      if (!isPasswordCorrect) {
+        console.log('Senha incorreta');
+        return null;
+      }
+
+      return user;
+    },
+  }),
+  GitHub,
+  Google,
+];
+
+export const providerMap = providers.map((provider) => {
+  if (typeof provider === 'function') {
+    const providerData = provider();
+    return { id: providerData.id, name: providerData.name };
+  } else {
+    return { id: provider.id, name: provider.name };
+  }
+});
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers,
   callbacks: {
+    async signIn({ user }) {
+      const existingUser = await getUserById(`${user.id}`);
+
+      // TODO: VERIFY EMAIL
+      // if (!existingUser || !existingUser.emailVerified) {
+      //   return false;
+      // }
+
+      return true;
+    },
     async session({ token, session }) {
+      console.log('SESSION: ', token);
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
@@ -50,5 +110,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   adapter: DrizzleAdapter(db),
   session: { strategy: 'jwt' },
-  providers: [GitHub, Google],
+
+  pages: {
+    signIn: '/signin',
+  },
 });

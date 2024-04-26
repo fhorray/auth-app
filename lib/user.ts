@@ -24,19 +24,3 @@ export const getUserById = async (id: string) => {
     return null;
   }
 };
-
-export const activeSubscription = async (id: string) => {
-  try {
-    const user = await db
-      .update(users)
-      .set({
-        subscription: true,
-      })
-      .where(eq(users.id, id))
-      .execute();
-    return user;
-  } catch (error) {
-    console.log('Error: ', error);
-    return null;
-  }
-};
