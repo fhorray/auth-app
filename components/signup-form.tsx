@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { signUpForm } from '@/lib/schemas';
+import { signUpForm } from "@/lib/schemas";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,52 +15,54 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import Link from 'next/link';
-import { register } from '@/actions/auth';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
+import { register } from "@/actions/auth";
 
-import { useState, useTransition } from 'react';
-import { toast, useToast } from './ui/use-toast';
-import { useRouter } from 'next/navigation';
+import { useState, useTransition } from "react";
+import { toast } from "./ui/use-toast";
+import { useRouter } from "next/navigation";
 
 export const SignUpForm = () => {
   const [erro, setErro] = useState<string | undefined>();
-
+  const [transition, startTransition] = useTransition();
   const router = useRouter();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof signUpForm>>({
     resolver: zodResolver(signUpForm),
     defaultValues: {
-      name: '',
-      email: '',
-      password: '',
+      name: "",
+      email: "",
+      password: "",
     },
   });
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof signUpForm>) {
-    setErro('');
+    setErro("");
 
-    register(values).then((data) => {
-      if (data?.error) {
-        setErro(data?.error);
-        toast({
-          variant: 'destructive',
-          title: 'Ops! Something Went Wrong!',
-          description: data?.error,
-        });
-      }
+    startTransition(() => {
+      register(values).then((data) => {
+        if (data?.error) {
+          setErro(data?.error);
+          toast({
+            variant: "destructive",
+            title: "Ops! Something Went Wrong!",
+            description: data?.error,
+          });
+        }
 
-      router.push('/dashboard');
+        router.push("/dashboard");
+      });
     });
   }
 
@@ -85,7 +87,11 @@ export const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Your Name" {...field} />
+                      <Input
+                        placeholder="Your Name"
+                        {...field}
+                        disabled={transition}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -100,7 +106,11 @@ export const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="email@exemplo.com.br" {...field} />
+                      <Input
+                        placeholder="email@exemplo.com.br"
+                        {...field}
+                        disabled={transition}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -119,18 +129,21 @@ export const SignUpForm = () => {
                         placeholder="********"
                         {...field}
                         type="password"
+                        disabled={transition}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={transition}>
+                Submit
+              </Button>
             </form>
           </Form>
 
           <div className="mt-4 text-center text-sm">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link href="/api/auth/signin" className="underline">
               Sign in
             </Link>

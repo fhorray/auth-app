@@ -1,14 +1,14 @@
-import { auth } from '@/auth';
-import { SignInForm } from '@/components/signin-form';
+import { auth, signIn, providerMap } from "@/auth";
+import { SignInForm } from "@/components/signin-form";
 
-import { redirect } from 'next/navigation';
-import React from 'react';
+import { redirect } from "next/navigation";
+import React from "react";
 
 const SignIn = async () => {
   const session = await auth();
 
   if (session) {
-    redirect('/dashboard');
+    redirect("/dashboard");
   }
 
   return <SignInForm />;

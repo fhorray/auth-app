@@ -1,20 +1,20 @@
-import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import NextAuth from 'next-auth';
-import GitHub from 'next-auth/providers/github';
-import Google from 'next-auth/providers/google';
-import Credentials from 'next-auth/providers/credentials';
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import NextAuth from "next-auth";
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
 
-import { db } from './db';
-import { getUserByEmail, getUserById } from './lib/user';
+import { db } from "./db";
+import { getUserByEmail, getUserById } from "./lib/user";
 
-import bcrypt from 'bcryptjs';
-import type { Provider } from 'next-auth/providers';
+import bcrypt from "bcryptjs";
+import type { Provider } from "next-auth/providers";
 
 const providers: Provider[] = [
   Credentials({
     credentials: {
-      email: { label: 'E-mail', type: 'email' },
-      password: { label: 'Password', type: 'password' },
+      email: { label: "E-mail", type: "email" },
+      password: { label: "Password", type: "password" },
     },
     authorize: async (c) => {
       let user = null;
@@ -22,18 +22,18 @@ const providers: Provider[] = [
       user = await getUserByEmail(c.email as string);
 
       if (!user) {
-        console.log('Usuário não encontrado');
+        console.log("Usuário não encontrado");
         return null;
       }
 
       // Compare password
       const isPasswordCorrect = await bcrypt.compare(
         c.password as string,
-        user.password as string,
+        user.password as string
       );
 
       if (!isPasswordCorrect) {
-        console.log('Senha incorreta');
+        console.log("Senha incorreta");
         return null;
       }
 
@@ -45,7 +45,7 @@ const providers: Provider[] = [
 ];
 
 export const providerMap = providers.map((provider) => {
-  if (typeof provider === 'function') {
+  if (typeof provider === "function") {
     const providerData = provider();
     return { id: providerData.id, name: providerData.name };
   } else {
@@ -67,13 +67,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     async session({ token, session }) {
-      console.log('SESSION: ', token);
+      console.log("SESSION: ", token);
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
 
       if (token.role && session.user) {
-        session.user.role = token.role as 'admin' | 'user';
+        session.user.role = token.role as "admin" | "user";
       }
 
       if (token.role && session.user) {
@@ -109,9 +109,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   adapter: DrizzleAdapter(db),
-  session: { strategy: 'jwt' },
-
+  session: { strategy: "jwt" },
   pages: {
-    signIn: '/signin',
+    signIn: "/signin",
   },
 });
